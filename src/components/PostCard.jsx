@@ -1,23 +1,41 @@
+import { Link } from "react-router-dom"
+import NoProfile from '../assets/defaultProfile.jpg'
+import { BiComment, BiLike, BiSolidLike } from "react-icons/bi"
+import { MdDeleteOutline } from 'react-icons/md';
+import { useState } from "react";
+import { getPostComments } from "../utils";
+import CommentForm from "./CommentForm";
+import ReplayCard from "./ReplayCart";
+import Loading from "./Loading";
+import moment from 'moment'
 const PostCard = ({post,user,deletePost,likePost}) => {
+  const [showAll,setShowAll]=useState(0)
+  const [comments,setComments]=useState([])
+  const [showComments,setShowComments]=useState(0)
+  const [replayComments,setReplayComments]=useState(null);
+  const [loading,setLoading]=useState(false)
+  const [showReplay,setShowReplay]=useState(0);
+  const getComments = async (id) => {
+    setReplayComments(0)
+    const result=await getPostComments(id)
+    setComments(result)
+  }
+  const handleLike =async(uri)=>{
+    await getComments(post?._id)
+  }
   return (
-    <div className='mb-2 bg-primary p-4 rounded-xl'>
+    <div className='mb-2 bg-white shadow-sm p-4 rounded-xl'>
         <div className='flex gap-3 items-center mb-2'>
-            <Link>
-                <img src={post?.userId?.photo??NoProfile} alt={post?.userId?.firstName} className='w-14 h-14 object-cover rounded-full' />
-            </Link>
+            <div>
+                <img src={post?.user_id?.photo??NoProfile} alt={post?.user_id?.first_name} className='w-14 h-12  rounded-full' />
+            </div>
             <div className='w-full flex justify-between'>
               <div className=''>
-                <Link to={`/profile/${post?.userId?._id}`}>
                   <p className='font-medium text-lg text-ascent-1'>
-                    {post?.userId?.firstName} {post?.userId?.lastName}
+                    {post?.user_id?.first_name} {post?.user_id?.last_name}
                   </p>
-                </Link>
-                <span className='text-ascent-2'>{post?.userId?.lastName}</span>
+                <span className='text-ascent-2'>{post?.user_id?.lastName}</span>
               </div>
-              {follow?
-              <span className='text-ascent-2'>{post && moment(post.createAt).fromNow()}</span>:
-              <span className='text-ascent-1 text-blue font-semibold'>Add Friend</span>
-            }
             </div>
         </div>
         <div>
@@ -40,13 +58,13 @@ const PostCard = ({post,user,deletePost,likePost}) => {
             {post?.likes?.length} Likes
           </p>
           <p className='flex gap-2 item-center text-base cursor-pointer' onClick={()=>{setShowComments(showComments ===post._id?null:post._id);
-          getComments(post?._id)}}>
+            getComments(post?._id)}} >
             <BiComment size={20} />
             {post?.comment?.length}Comments
           </p>
           {
             user?._id===post?.userId?._id && 
-            <div className='flex gap-1 items-center text-base text-ascent-1 cursor-pointer' onClick={()=>deletePost(post?._id)}>
+            <div className='flex gap-1 items-center text-base text-ascent-1 cursor-pointer'>
               <MdDeleteOutline size={20} />
               <span>Delete</span>
             </div>
@@ -65,17 +83,17 @@ const PostCard = ({post,user,deletePost,likePost}) => {
                 comments?.map((c)=>(
                 <div className='w-full py-2' key={c._id}>
                   <div className='flex gap-2 items-center mb-1'>
-                    <Link to={`/profile/${c?.userId}._id`}>
-                      <img src={c?.userId?.photo??NoProfile} alt={c?.userId?.firstName} className='w-10 h-10 rounded-full object-cover' />
-                    </Link>
+                    <div>
+                      <img src={c?.userId?.profile_pic??NoProfile} alt={c?.userId?.first_name} className='w-10 h-10 rounded-full object-cover' />
+                    </div>
                   <div>
-                    <Link to={`/profile/${c?.userId?._id}`}>
+                    <div>
                       <p className='font-medium text-base text-ascent-1'>
-                        {c?.userId?.firstName}{c?.userId?.lastName}
+                        {c?.user_id?.first_name}{c?.user_id?.last_name}
                       </p>
-                    </Link>
+                    </div>
                     <span className='text-ascent-2 hidden md:flex'>
-                    {c && moment(c?.createAt).fromNow()}
+                    {c && moment(c?.createdAt).fromNow()}
                     </span>
                   </div>
                   </div>
@@ -120,6 +138,7 @@ const PostCard = ({post,user,deletePost,likePost}) => {
             )}
           </div>
         )}
+        
     </div>
     
   )

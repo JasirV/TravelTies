@@ -21,7 +21,9 @@ const UserLoging = () => {
       password: formData.get('password')})
       const response=await api.post('/auth/login',data)
       if(response.status===200){
+        console.log(response);
         localStorage.setItem('token',response.data.token)
+        localStorage.setItem('userId',response.data.user._id)
         navigate('/')
       }else{
         setErrorMes(response.message)}

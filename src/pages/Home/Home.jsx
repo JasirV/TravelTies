@@ -10,6 +10,8 @@ import { IoMdAdd } from 'react-icons/io';
 import { Link } from 'react-router-dom';
 import api from '../../utils/apiIntercepeors';
 import { handleFileUpload } from '../../utils/ImageUploading';
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 
 const Home = () => {
     const [posting, setPosting] = useState(false);
@@ -18,35 +20,64 @@ const Home = () => {
     const [posts,setPosts]=useState()
     const [users,setUser]=useState([])
     const [file, setFile] = useState(null);
-    const description=useRef(null)
+    const descriptionRef=useRef(null)
+    const [totalPage,setTotalPage]=useState(0)
+    const [page,setPage]=useState(1)
 
+    const fetchPost=async()=>{
+      try {
+        const response =await api.get('/post/',{params:{page}})
+        if(response.status==200){
+          setPosts(response.data.data)
+            setTotalPage(response.data.totalpage)
+        }
+      } catch (error) {
+        console.error(error);
+        setErrMsg('')
+      }
+    }
     useEffect(()=>{
         const usersFetching=async()=>{
             const response=await api.get('/auth/')
             setUser(response?.data?.data)
         }
         usersFetching()
-    },[])
+        fetchPost()
+    },[page])
     const handleImageUpload=(event)=>{
         const file =event.target.files[0];
         setFile(file)
     };
-    const handlePostSubmit=async(data)=>{
-        event.preventDefault();
+    const handlePostSubmit= async (event)=>{
+      event.preventDefault();
         setPosting(true)
         setErrMsg('')
         try {
             const value=await handleFileUpload(file)
             const uri=file&&value
-            const userId=localStorage.getItem('token')
-            const newData=uri?{...data,image:uri,userId}:data;
-            console.log(newData);
+            const user_id=localStorage.getItem('userId')
+            const description = descriptionRef.current.value;
+            const newData={description,user_id,...(uri&&{image:uri})};
+            const response=await api.post('/post/',newData)
+            console.log(response);
+            if(response.status!=200){
+              setErrMsg(response)
+            }else{
+              if(descriptionRef.current){
+                descriptionRef.current.value = "";
+              }
+              setFile(null);
+              setErrMsg("");
+            }
             setPosting(false)
         } catch (error) {
             console.error(error);
             setPosting(false)
         }
     }
+    const handleChange = (e, value) => {
+      setPage(value);
+    };
   return (
     <div className="home w-full px- lg:px-10 pb-20 2xl:px-40 bg-secondary bg-opacity-40 lg:rounded-lg h-screen overflow-hidden">
     <NavBar />
@@ -97,7 +128,7 @@ const Home = () => {
               className="w-full rounded-full py-1 bg-secondary bg-opacity-20  border  border-gray-300 outline-none text-sm font-light px-3 placeholder:text-[#666]"
               placeholder="Whats on your mind..."
               name="description"
-              ref={description}
+              ref={descriptionRef}
             />
           </div>
           {errMsg?.message && (
@@ -171,15 +202,20 @@ const Home = () => {
             {loading ? (
               <Loading />
             ) : posts?.length > 0 ? (
-              posts?.map((post) => (
+              <>
+              {posts?.map((post) => (
                 <PostCard
                   key={post?._id}
                   post={post}
                   user={users}
-                  deletePost={handleDelete}
-                  likePost={handleLikePost}
                 />
-              ))
+              ))}
+              {totalPage > 1 && (
+          <Stack className="flex justify-center items-center mb-3">
+            <Pagination count={totalPage} onChange={handleChange} variant="outlined" color="primary" />
+          </Stack>
+        )}
+              </>
             ) : (
               <div className="flex w-full item-center justify-center">
                 <p className="text-lg text-ascent-2">No Post Available</p>
@@ -192,10 +228,9 @@ const Home = () => {
             <span>Users</span>
           </div>
           <div className="w-full flex flex-col gap-5 pt-4">
-            {users?.map((i)=>(
-          <div key={i||i._id}  className="flex item-center justify-between">
-                    <Link
-                      to={`profile ${i?._id}`}
+            {users?.map((i,index)=>(
+          <div key={index||i._id}  className="flex item-center justify-between">
+                    <div
                       className="w-full flex gap-4 item-center cursor-pointer"
                     >
                       <img
@@ -209,7 +244,7 @@ const Home = () => {
                         {i?.last_name}
                         </p>
                       </div>
-                    </Link>
+                    </div>
                     <div className="h-6 flex gap-1">
                     </div>
                   </div>

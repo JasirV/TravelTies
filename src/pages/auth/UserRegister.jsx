@@ -26,6 +26,7 @@ const UserRegister = () => {
           const response= await api.post('/auth/register',data)
           if(response.status===201){
             localStorage.setItem('token',response.data.token)
+            localStorage.setItem('userId',response.data.user._id)
             navigate('/')
           }else{
             errorMes(response.data.message)
