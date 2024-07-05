@@ -12,6 +12,7 @@ import api from '../../utils/apiIntercepeors';
 import { handleFileUpload } from '../../utils/ImageUploading';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
+import ProfileModal from '../../components/ProfileModal';
 
 const Home = () => {
     const [posting, setPosting] = useState(false);
@@ -23,6 +24,7 @@ const Home = () => {
     const descriptionRef=useRef(null)
     const [totalPage,setTotalPage]=useState(0)
     const [page,setPage]=useState(1)
+    const [modalIsOpen, setModalIsOpen] = useState(false);
 
     const fetchPost=async()=>{
       try {
@@ -38,7 +40,7 @@ const Home = () => {
     }
     useEffect(()=>{
         const usersFetching=async()=>{
-            const response=await api.get('/auth/')
+            const response=await api.get('/users/')
             setUser(response?.data?.data)
         }
         usersFetching()
@@ -53,8 +55,11 @@ const Home = () => {
         setPosting(true)
         setErrMsg('')
         try {
+          let uri;
+          if(file){
             const value=await handleFileUpload(file)
-            const uri=file&&value
+             uri=file&&value
+          }
             const user_id=localStorage.getItem('userId')
             const description = descriptionRef.current.value;
             const newData={description,user_id,...(uri&&{image:uri})};
@@ -79,7 +84,8 @@ const Home = () => {
       setPage(value);
     };
   return (
-    <div className="home w-full px- lg:px-10 pb-20 2xl:px-40 bg-secondary bg-opacity-40 lg:rounded-lg h-screen overflow-hidden">
+    <div className={`home w-full px- lg:px-10 pb-20 2xl:px-40 bg-secondary bg-opacity-40 lg:rounded-lg h-screen overflow-hidden`}>
+      {modalIsOpen&&<ProfileModal modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen}/>}
     <NavBar />
     <div className="w-full flex gap-2 lg:gap-4 pt-5 pb-10 h-full">
       {/* LIFT */}
@@ -95,7 +101,7 @@ const Home = () => {
                 <p className='font-semibold font-sans'>Muhamed Jasir</p>
                 <p className='text-sm'>Lorem ipsum, dolor sit amet consectetur</p>
                 <button
-                      className="bg-[#0444a4] mt-4 text-white py-1 px-6 rounded-full font-semibold text-sm"
+                      className="bg-[#0444a4] mt-4 text-white py-1 px-6 rounded-full font-semibold text-sm" onClick={()=>setModalIsOpen(true)}
                     >Edit Profile</button>
             </div>
           </div>
@@ -208,9 +214,10 @@ const Home = () => {
                   key={post?._id}
                   post={post}
                   user={users}
+                  fetchPost={fetchPost}
                 />
               ))}
-              {totalPage > 1 && (
+              {!modalIsOpen&&totalPage > 1 && (
           <Stack className="flex justify-center items-center mb-3">
             <Pagination count={totalPage} onChange={handleChange} variant="outlined" color="primary" />
           </Stack>

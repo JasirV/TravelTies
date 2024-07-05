@@ -3,12 +3,13 @@ import NoProfile from '../assets/defaultProfile.jpg'
 import { BiComment, BiLike, BiSolidLike } from "react-icons/bi"
 import { MdDeleteOutline } from 'react-icons/md';
 import { useState } from "react";
-import { getPostComments } from "../utils";
+import { getPostComments, LikePost } from "../utils";
 import CommentForm from "./CommentForm";
 import ReplayCard from "./ReplayCart";
 import Loading from "./Loading";
 import moment from 'moment'
-const PostCard = ({post,user,deletePost,likePost}) => {
+import api from "../utils/apiIntercepeors";
+const PostCard = ({post,user,deletePost,likePost,fetchPost}) => {
   const [showAll,setShowAll]=useState(0)
   const [comments,setComments]=useState([])
   const [showComments,setShowComments]=useState(0)
@@ -21,8 +22,22 @@ const PostCard = ({post,user,deletePost,likePost}) => {
     setComments(result)
   }
   const handleLike =async(uri)=>{
+    await LikePost(uri)
     await getComments(post?._id)
+    fetchPost()
+    
   }
+  const handleDelete=async(postId)=>{
+    try {
+      const response=await api.delete(`/post/${postId}`)
+      if(response.status===200){
+        fetchPost()
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  const userId=localStorage.getItem('userId')
   return (
     <div className='mb-2 bg-white shadow-sm p-4 rounded-xl'>
         <div className='flex gap-3 items-center mb-2'>
@@ -49,8 +64,8 @@ const PostCard = ({post,user,deletePost,likePost}) => {
         </div>
         <div className='mt-4 flex justify-between item-center px-3 py-2 text-ascent-2 text-base border-t border-[#66666645]'>
           <p className='flex gap-2 item-center text-base cursor-pointer'
-          onClick={()=>handleLike('/post/like/'+post?._id)}>
-            {post?.likes?.includes(user?._id)?(
+          onClick={()=>handleLike('/post/'+post?._id)}>
+            {post?.like?.includes(userId)?(
               <BiSolidLike size={20} color='blue' />
             ):(
               <BiLike size={20} />
@@ -64,7 +79,7 @@ const PostCard = ({post,user,deletePost,likePost}) => {
           </p>
           {
             user?._id===post?.userId?._id && 
-            <div className='flex gap-1 items-center text-base text-ascent-1 cursor-pointer'>
+            <div className='flex gap-1 items-center text-base text-ascent-1 cursor-pointer' onClick={()=>handleDelete(post?._id)}>
               <MdDeleteOutline size={20} />
               <span>Delete</span>
             </div>
@@ -92,22 +107,14 @@ const PostCard = ({post,user,deletePost,likePost}) => {
                         {c?.user_id?.first_name}{c?.user_id?.last_name}
                       </p>
                     </div>
-                    <span className='text-ascent-2 hidden md:flex'>
-                    {c && moment(c?.createdAt).fromNow()}
+                    <span className='text-ascent-2 '>
+                    {moment(comments[0]?.createdAt).fromNow()}
                     </span>
                   </div>
                   </div>
                   <div className='ml-12'>
                     <p className='text-ascent-2'>{c?.comment}</p>
                     <div className='mt-2 flex gap-6'>
-                      <p className='flex gap-2 items-center text-base text-ascent-2 cursor-pointer' 
-                      onClick={()=>handleLike('/post/likeComment/'+c?._id)}
-                      >{c?.likes?.includes(user?._id)?(
-                        <BiSolidLike size={20} color='blue'/>
-                      ):(
-                        <BiLike size={20} />
-                      )}
-                      {c?.likes?.length} Likes</p>
                       <span className='text-blue cursor-pointer' onClick={()=>setReplayComments(c?._id)}>
                         Reply
                       </span>
@@ -124,7 +131,7 @@ const PostCard = ({post,user,deletePost,likePost}) => {
                     {
                       showReplay == c?.replies?._id &&
                       c?.replies?.map((reply)=>(
-                        <ReplayCard reply={reply} user={user} key={reply?._id} handleLike={()=>handleLike(`/posts/like-comment/${c?._id}/${reply?._id}`)} />
+                        <ReplayCard reply={reply} user={user} key={reply?._id}  />
                       ))
                     }
                   </div>
