@@ -13,6 +13,8 @@ import { handleFileUpload } from '../utils/ImageUploading';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
 import ProfileModal from '../components/ProfileModal';
+import ContriesModal from '../components/ContriesModal';
+import FilterModal from '../components/FilterModal';
 
 const Home = () => {
     const [posting, setPosting] = useState(false);
@@ -25,10 +27,17 @@ const Home = () => {
     const [totalPage,setTotalPage]=useState(0)
     const [page,setPage]=useState(1)
     const [modalIsOpen, setModalIsOpen] = useState(false);
+    const[cureentUser,setCurentUSer]=useState({})
+    const[modalIsOpenContries,setModalIsOpenContries]=useState(false)
+    const [countriesCode,setConutriesCode]=useState([])
+    const [countries,setCountries]=useState([])
+    const [filter,setFilter]=useState()
+    const [search,setSearch]=useState()
+    const[isOpen,setIsOpen]=useState(false)
 
     const fetchPost=async()=>{
       try {
-        const response =await api.get('/post/',{params:{page}})
+        const response =await api.get('/post/',{params:{page,search,filter}})
         if(response.status==200){
           setPosts(response.data.data)
             setTotalPage(response.data.totalpage)
@@ -38,14 +47,35 @@ const Home = () => {
         setErrMsg('')
       }
     }
+    const countriesFetching=async()=>{
+      try {
+        if(countriesCode.length>0){
+        const response=await api.get('/countries/',{params:{countriesCode}})
+        console.log(response);
+        setCountries(response.data.data)
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
     useEffect(()=>{
         const usersFetching=async()=>{
             const response=await api.get('/users/')
             setUser(response?.data?.data)
         }
+        const currentUserFetching=async()=>{
+          const response=await api.get('/users/',{params:{userId:localStorage.getItem('userId')}})
+          setCurentUSer(response?.data?.data)
+          setConutriesCode(response.data.data.interested_countries)
+        }
+        
+        currentUserFetching()
         usersFetching()
         fetchPost()
-    },[page])
+        countriesFetching()
+    },[page,filter,search])
+     
+      
     const handleImageUpload=(event)=>{
         const file =event.target.files[0];
         setFile(file)
@@ -83,11 +113,14 @@ const Home = () => {
     const handleChange = (e, value) => {
       setPage(value);
     };
+    console.log(cureentUser);
+
   return (
     <div className={`home w-full px- lg:px-10 pb-20 2xl:px-40 bg-secondary bg-opacity-40 lg:rounded-lg h-screen overflow-hidden`}>
       {modalIsOpen&&<ProfileModal modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen}/>}
-    <NavBar />
-    <div className="w-full flex gap-2 lg:gap-4 pt-5 pb-10 h-full">
+      {modalIsOpenContries&&<ContriesModal modalIsOpenContries={modalIsOpenContries} setModalIsOpenContries={setModalIsOpenContries} countriesFetching={countriesFetching}/>}
+    <NavBar setFilter={setFilter} setSearch={setSearch} filter={filter} setModalIsOpen={setModalIsOpen} setModalIsOpenContries={setModalIsOpenContries} isOpen={isOpen} setIsOpen={setIsOpen}/>
+    <div className="w-full flex gap-2 lg:gap-4 pt-5 pb-10 h-full">    
       {/* LIFT */}
       <div className="hidden w-1/4 h-full lg:flex flex-col gap-8 overflow-y-auto">
         {/* Profile  */}
@@ -95,11 +128,11 @@ const Home = () => {
           <div className="flex flex-col item-center jstify-between text-xl text-ascente-1 pb-2 ">
             <div className='w-full relative '>
                 <img src={CoverImage} className='w-full rounded-md' alt="" />
-                <img src={NoProfile} className='absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rounded-full w-14 h-14' alt="" />
+                <img src={cureentUser?.profile_pic||NoProfile} className='absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rounded-full w-16 h-16' alt="" />
             </div>
             <div className='w-full flex justify-center items-center mt-8 flex-col'>
-                <p className='font-semibold font-sans'>Muhamed Jasir</p>
-                <p className='text-sm'>Lorem ipsum, dolor sit amet consectetur</p>
+                <p className='font-semibold font-sans'>{`${cureentUser?.first_name} ${cureentUser?.last_name}`}</p>
+                <p className='text-sm'>{cureentUser?.bio}</p>
                 <button
                       className="bg-[#0444a4] mt-4 text-white py-1 px-6 rounded-full font-semibold text-sm" onClick={()=>setModalIsOpen(true)}
                     >Edit Profile</button>
@@ -107,15 +140,17 @@ const Home = () => {
           </div>
         </div>
         {/*Intrest Contryes */}
-        <div className="w-full shadow-md bg-white rounded-lg px-6 py-5">
+        <div className="w-full shadow-md bg-white rounded-lg px-6 py-5 overscroll-auto">
           <div className="flex item-center align-middle justify-between text-xl text-ascente-1 pb-2  border-b border-[#66666645] ">
             <span>Interested Countries</span>
-            <IoMdAdd className='text-blue-700' />
+            <IoMdAdd className='text-blue-700' onClick={()=>setModalIsOpenContries(true)} />
           </div>
-          <div className="w-full flex flex-col gap-1 pt-4">
-           <p>india </p> 
-           <p>uk </p> 
-           <p>usa </p> 
+          <div className="w-full flex flex-wrap gap-1 pt-4 ">
+           {countries&&(
+            countries?.map((i)=>(
+              <img src={i?.img}  key={i._id} alt={i?.code} className="w-12"/>
+            ))
+           )}
           </div>
         </div>
       </div>
@@ -126,7 +161,7 @@ const Home = () => {
         >
           <div className="w-full flex item-center gap-2 py-4 border-b border-[#66666645]">
             <img
-              src={NoProfile}
+              src={cureentUser?.profile_pic||NoProfile}
               alt="UserImage"
               className="w-14 h-14 rounded-full object-cover"
             />
@@ -217,7 +252,7 @@ const Home = () => {
                   fetchPost={fetchPost}
                 />
               ))}
-              {!modalIsOpen&&totalPage > 1 && (
+              {!modalIsOpen&&!modalIsOpenContries&&totalPage > 1 && (
           <Stack className="flex justify-center items-center mb-3">
             <Pagination count={totalPage} onChange={handleChange} variant="outlined" color="primary" />
           </Stack>
@@ -241,14 +276,13 @@ const Home = () => {
                       className="w-full flex gap-4 item-center cursor-pointer"
                     >
                       <img
-                        src={i?.image ?? NoProfile}
+                        src={i?.profile_pic?? NoProfile}
                         alt={i?.first_name}
                         className="w-10 h-10 object-cover rounded-full"
                       />
                       <div className="flex-1">
                         <p className="text-base font-medium text-ascent-1">
-                          {i?.first_name}
-                        {i?.last_name}
+                          {`${i?.first_name}  ${i?.last_name}`}
                         </p>
                       </div>
                     </div>

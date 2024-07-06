@@ -38,11 +38,12 @@ const PostCard = ({post,user,deletePost,likePost,fetchPost}) => {
     }
   }
   const userId=localStorage.getItem('userId')
+  console.log(post);
   return (
     <div className='mb-2 bg-white shadow-sm p-4 rounded-xl'>
         <div className='flex gap-3 items-center mb-2'>
             <div>
-                <img src={post?.user_id?.photo??NoProfile} alt={post?.user_id?.first_name} className='w-14 h-12  rounded-full' />
+                <img src={post?.user_id?.profile_pic??NoProfile} alt={post?.user_id?.first_name} className='w-14 h-12  rounded-full' />
             </div>
             <div className='w-full flex justify-between'>
               <div className=''>
@@ -51,6 +52,7 @@ const PostCard = ({post,user,deletePost,likePost,fetchPost}) => {
                   </p>
                 <span className='text-ascent-2'>{post?.user_id?.lastName}</span>
               </div>
+              {moment(post?.createdAt).fromNow()}
             </div>
         </div>
         <div>

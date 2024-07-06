@@ -1,17 +1,22 @@
 import React, { useState } from 'react'
-import { FaFacebookMessenger } from 'react-icons/fa';
 import { GiTreasureMap } from "react-icons/gi";
-import {BsMoon, BsSunFill } from 'react-icons/bs';
 import {IoMdNotificationsOutline} from 'react-icons/io'
 import { Link } from 'react-router-dom';
-import TextInput from './TextInput';
+import { FaArrowDownLong } from "react-icons/fa6";
+import NavbarSm from './NavbarSm';
+import { CiFilter } from "react-icons/ci";
+import FilterModal from './FilterModal';
 
-const NavBar = () => {
-    const [theme, setTheme] = useState(() => {
-        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        return prefersDarkScheme ? 'dark' : 'light';
-      });
+const NavBar = ({setModalIsOpen,setModalIsOpenContries,setSearch,isOpen,setIsOpen,setFilter}) => {
+const [isOpend, setIsOpend] = useState(false);
+const [login,setLogin]=useState(false)
+useState(()=>{
+    if(localStorage.getItem('token')){
+        setLogin(true)
+    }
+},[])
   return (
+    <>
     <div className='topbar w-full flex items-center justify-between py-3 md:py-6 px-4 rounded-3xl bg-white'>
         <Link to='/' className='flex gap-2 items-center'>
             <div className='p-1 md:p-2 bg-primary rounded text-white'>
@@ -21,24 +26,32 @@ const NavBar = () => {
         </Link>
 
         <form className='hidden md:flex items-center justify-center  w-2/4'>
-            <TextInput placeholder="Search" styles="w-[18rem] lg:w-[38rem] rounded-l-full py-3" />
+            <input placeholder="Search" onChange={(e)=>setSearch(e.target.value)} className="w-[18rem] lg:w-[38rem] rounded-full py-3 outline-none text-sm font-light px-3 bg-secondary bg-opacity-25 border border-gray-100" />
         </form>
 
         {/* ICONS */}
 
         <div className='flex gap-4 items-center text-ascent-1 text-md md:text-xl'> 
-        <button >
-            {theme==="light"?<BsMoon />:<BsSunFill />}
-        </button>
+        <div className='flex lg:hidden' >
+        <FaArrowDownLong size={15} onClick={()=>setIsOpend(!isOpend)} className={isOpen ? 'rotate-180' : ''}/>
+        </div>
+        <div className='hidden lg:flex'>
+        <CiFilter onClick={()=>{setIsOpen(!isOpen)}} />
+        {isOpen&&<FilterModal isOpen={isOpen} setIsOpen={setIsOpen} setFilter={setFilter}/> }
+        </div>
         <div className='hidden lg:flex'>
         <IoMdNotificationsOutline  />
         </div>
+        {login&&
         <div>
            <button className='text-sm text-ascent-1 px-4 md:px-6 py-1 md:py-2 border border-[#666] rounded-full bg-white'>logout</button>
-        </div>
-
+        </div>}
         </div>
     </div>
+    {isOpend&&(
+        <NavbarSm setSearch={setSearch} setIsOpend={setIsOpend} setFilter={setFilter} isOpend={isOpend} setModalIsOpen={setModalIsOpen} setModalIsOpenContries={setModalIsOpenContries}/>
+    )}
+    </>
   )
 }
 
