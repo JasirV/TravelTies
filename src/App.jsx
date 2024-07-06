@@ -4,7 +4,7 @@ import viteLogo from '/vite.svg'
 import { Route, Routes } from 'react-router-dom'
 import UserLoging from './pages/auth/UserLoging'
 import UserRegister from './pages/auth/UserRegister'
-import Home from './pages/home/Home'
+import Home from './pages/Home';
 
 function App() {
   return (

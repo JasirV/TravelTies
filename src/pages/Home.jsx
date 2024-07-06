@@ -1,18 +1,18 @@
 import React, { Profiler, useEffect, useRef, useState } from 'react'
-import Loading from '../../components/Loading'
+import Loading from '../components/Loading'
 import { BsFiletypeGif, BsPersonFillAdd, BsPostcard } from "react-icons/bs";
 import { BiImages, BiSolidVideo } from "react-icons/bi";
-import NavBar from '../../components/NavBar';
+import NavBar from '../components/NavBar';
 import NoProfile from '../../assets/defaultProfile.jpg'
-import PostCard from '../../components/PostCard';
+import PostCard from '../components/PostCard';
 import CoverImage from '../../assets/coverImage.jpg'
 import { IoMdAdd } from 'react-icons/io';
 import { Link } from 'react-router-dom';
-import api from '../../utils/apiIntercepeors';
-import { handleFileUpload } from '../../utils/ImageUploading';
+import api from '../utils/apiIntercepeors';
+import { handleFileUpload } from '../utils/ImageUploading';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
-import ProfileModal from '../../components/ProfileModal';
+import ProfileModal from '../components/ProfileModal';
 
 const Home = () => {
     const [posting, setPosting] = useState(false);
