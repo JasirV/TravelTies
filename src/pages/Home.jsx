@@ -3,9 +3,9 @@ import Loading from '../components/Loading'
 import { BsFiletypeGif, BsPersonFillAdd, BsPostcard } from "react-icons/bs";
 import { BiImages, BiSolidVideo } from "react-icons/bi";
 import NavBar from '../components/NavBar';
-import NoProfile from '../../assets/defaultProfile.jpg'
+import NoProfile from '../assets/defaultProfile.jpg'
 import PostCard from '../components/PostCard';
-import CoverImage from '../../assets/coverImage.jpg'
+import CoverImage from '../assets/coverImage.jpg'
 import { IoMdAdd } from 'react-icons/io';
 import { Link } from 'react-router-dom';
 import api from '../utils/apiIntercepeors';
