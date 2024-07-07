@@ -7,8 +7,12 @@ import Loading from '../../components/Loading'
 const UserRegister = () => {
     const navigate=useNavigate()
     const [data,setData]=useState()
-    const [errorMes,setErrorMes]=useState()
     const[loading,setLoading]=useState()
+    const [email, setEmail] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [password, setPassword] = useState('');
+    const [errorMes, setErrorMes] = useState('');
     const handleSubmit=async(event)=>{
       event.preventDefault();
       const formData = new FormData(event.currentTarget);
@@ -51,12 +55,63 @@ const UserRegister = () => {
           </p>
           <div className='w-full  flex justify-center'>
           <form className='p-2 w-full flex flex-col gap-1 justify-center' onSubmit={handleSubmit}>
-              <TextInput name="firstName" placeholder="FirstName" label="First Name" type="fristName" styles='w-full rounded-full' labelStyle='ml-2'  />
-              <TextInput name="lastName" placeholder="Last Name" label="Last Name" type="lastName" sterstyles='w-full rounded-full' labelStyle='ml-2' />
-            <TextInput name="email" placeholder="email@example.com" label="Email Address" type="email" styles='w-full rounded-full' labelStyle='ml-2'  />
-            <div className='w-full flex flex-col lg:flex-row gap-1 md:gap-2'>
-              <TextInput name="password" placeholder="Password" label="Password" type="Password" styles='w-full rounded-full' labelStyle='ml-2'  />
-            </div>
+          <div className="w-full flex flex-col mt-2">
+        <p className="font-light text-sm mb-2 ml-2">Email Address</p>
+        <div className="w-full">
+          <input
+            type="email"
+            name="email"
+            placeholder="email@example.com"
+            className="bg-secondary bg-opacity-20 border rounded-full border-gray-300 outline-none text-sm font-light px-3 py-3 w-full placeholder:text-[#666]"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+      </div>
+      
+      <div className="w-full flex flex-col lg:flex-row gap-1 md:gap-2">
+        <div className="w-full flex flex-col mt-2">
+          <p className="font-light text-sm mb-2 ml-2">First Name</p>
+          <div className="w-full">
+            <input
+              type="text"
+              name="firstName"
+              placeholder="First Name"
+              className="bg-secondary bg-opacity-20 border rounded-full border-gray-300 outline-none text-sm font-light px-3 py-3 w-full placeholder:text-[#666]"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="w-full flex flex-col mt-2">
+          <p className="font-light text-sm mb-2 ml-2">Last Name</p>
+          <div className="w-full">
+            <input
+              type="text"
+              name="lastName"
+              placeholder="Last Name"
+              className="bg-secondary bg-opacity-20 border rounded-full border-gray-300 outline-none text-sm font-light px-3 py-3 w-full placeholder:text-[#666]"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full flex flex-col mt-2">
+        <p className="font-light text-sm mb-2 ml-2">Password</p>
+        <div className="w-full">
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            className="bg-secondary bg-opacity-20 border rounded-full border-gray-300 outline-none text-sm font-light px-3 py-3 w-full placeholder:text-[#666]"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+      </div>
             <button type='submit' className='inline-flex justify-center rounded-full bg-blue px-8 py-3 mt-2 text-sm font-medium text-white outline-none bg-primary '>Create Account</button>
           </form>
           </div>

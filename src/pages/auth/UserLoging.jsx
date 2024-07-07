@@ -9,31 +9,37 @@ const UserLoging = () => {
   const [data,setData]=useState()
   const [errorMes,setErrorMes]=useState()
   const [loading,setLoading]=useState(false)
-  const handleSubmit= async(event)=>{
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
-    if( formData.get('email')===""){
-      setErrorMes('Fill The Form')
-      return 
-    }else if(formData.get('password')===""){
-      setErrorMes("Password Mustbe 8 length")
-      return
-    }else{
-      setData({email: formData.get('email'),
-      password: formData.get('password')})
-      setLoading(true)
-      const response=await api.post('/auth/login',data)
-      setLoading(false)
-      if(response.status===200){
+    if (email === '') {
+      setErrorMes('Fill The Form');
+      return;
+    } else if (password === '') {
+      setErrorMes('Password must be at least 8 characters');
+      return;
+    } else {
+      setLoading(true);
+      try {
+        const response = await api.post('/auth/login', { email, password });
+        setLoading(false);
+        if (response.status === 200) {
+          console.log(response);
+          localStorage.setItem('token', response.data.token);
+          localStorage.setItem('userId', response.data.user._id);
+          navigate('/');
+        } else {
+          setErrorMes(response.message);
+        }
         console.log(response);
-        localStorage.setItem('token',response.data.token)
-        localStorage.setItem('userId',response.data.user._id)
-        navigate('/')
-      }else{
-        setErrorMes(response.message)}
-      console.log(response);
+      } catch (error) {
+        setLoading(false);
+        setErrorMes('An error occurred during login');
+        console.error(error);
+      }
     }
-  }
+  };
   return (
     <div className='bg-secondary bg-opacity-30 w-fulll h-screen flex justify-center items-center'>
       <div className='w-full md:w-2/3 h-fit lg:h-full 2xl:h-5/6 py-8 lg:py-0 flex flex-row-reverse bg-white rounded-xl overflow-hidden shadow-xl'>
@@ -47,10 +53,33 @@ const UserLoging = () => {
           </p>
           <div className='w-full  flex justify-center '>
           <form className='p-2 w-full flex flex-col gap-1 justify-center ' onSubmit={handleSubmit}>
-            <TextInput name="email" placeholder="email@example.com" label="Email Address" type="email" styles='w-full rounded-full' labelStyle='ml-2'  />
-            <div className='w-full flex flex-col lg:flex-row gap-1 md:gap-2'>
-              <TextInput name="password" placeholder="Password" label="Password" type="Password" styles='w-full rounded-full' labelStyle='ml-2'  />
-            </div>
+          <div className="w-full flex flex-col mt-2">
+        <p className="font-light text-sm mb-2 ml-2">Email Address</p>
+        <div className="w-full">
+          <input
+            type="email"
+            name="email"
+            placeholder="email@example.com"
+            className="bg-secondary bg-opacity-20 border rounded-full border-gray-300 outline-none text-sm font-light px-3 py-3 w-full placeholder:text-[#666]"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="w-full flex flex-col lg:flex-row gap-1 md:gap-2 mt-2">
+        <div className="w-full flex flex-col mt-2">
+          <p className="font-light text-sm mb-2 ml-2">Password</p>
+          <div className="w-full">
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              className="bg-secondary bg-opacity-20 border rounded-full border-gray-300 outline-none text-sm font-light px-3 py-3 w-full placeholder:text-[#666]"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+        </div>
+        </div>
             {errorMes&&<p className='text-red-500'>{errorMes}</p>}
             <button type='submit' className='inline-flex justify-center rounded-full bg-blue px-8 py-3 mt-2 text-sm font-medium text-white outline-none bg-primary '>Create Account</button>
           </form>
