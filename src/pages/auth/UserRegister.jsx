@@ -3,10 +3,12 @@ import TextInput from '../../components/TextInput'
 import BgImage from '../../assets/singupbg.jpg'
 import { useNavigate } from 'react-router-dom'
 import api from '../../utils/apiIntercepeors'
+import Loading from '../../components/Loading'
 const UserRegister = () => {
     const navigate=useNavigate()
     const [data,setData]=useState()
     const [errorMes,setErrorMes]=useState()
+    const[loading,setLoading]=useState()
     const handleSubmit=async(event)=>{
       event.preventDefault();
       const formData = new FormData(event.currentTarget);
@@ -23,7 +25,9 @@ const UserRegister = () => {
       }
       else{
         setData({email,password,first_name:firstName,last_name:lastName})
+        setLoading(true)
           const response= await api.post('/auth/register',data)
+          setLoading(false)
           if(response.status===201){
             localStorage.setItem('token',response.data.token)
             localStorage.setItem('userId',response.data.user._id)
@@ -68,6 +72,10 @@ const UserRegister = () => {
           </div>
         </div>
       </div>
+      {loading && (
+        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-700 bg-opacity-50">
+          <Loading />
+        </div>)}
     </div>
     
   )

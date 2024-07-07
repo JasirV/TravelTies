@@ -50,7 +50,7 @@ const PostCard = ({post,user,deletePost,likePost,fetchPost}) => {
                   <p className='font-medium text-lg text-ascent-1'>
                     {post?.user_id?.first_name} {post?.user_id?.last_name}
                   </p>
-                <span className='text-ascent-2'>{post?.user_id?.lastName}</span>
+                <span className='text-ascent-2'>{post?.location}</span>
               </div>
               {moment(post?.createdAt).fromNow()}
             </div>

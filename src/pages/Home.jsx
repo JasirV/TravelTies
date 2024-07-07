@@ -7,7 +7,7 @@ import NoProfile from '../assets/defaultProfile.jpg'
 import PostCard from '../components/PostCard';
 import CoverImage from '../assets/coverImage.jpg'
 import { IoMdAdd } from 'react-icons/io';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/apiIntercepeors';
 import { handleFileUpload } from '../utils/ImageUploading';
 import Pagination from '@mui/material/Pagination';
@@ -34,10 +34,15 @@ const Home = () => {
     const [filter,setFilter]=useState()
     const [search,setSearch]=useState()
     const[isOpen,setIsOpen]=useState(false)
+    const [locations,setLocations]=useState([])
+    const [selectLocation,setSelecteLocation]=useState()
+    const navigate=useNavigate()
 
     const fetchPost=async()=>{
       try {
+        setloading(true)
         const response =await api.get('/post/',{params:{page,search,filter}})
+        setloading(false)
         if(response.status==200){
           setPosts(response.data.data)
             setTotalPage(response.data.totalpage)
@@ -50,8 +55,9 @@ const Home = () => {
     const countriesFetching=async()=>{
       try {
         if(countriesCode.length>0){
+          setloading(true)
         const response=await api.get('/countries/',{params:{countriesCode}})
-        console.log(response);
+        setloading(false)
         setCountries(response.data.data)
         }
       } catch (error) {
@@ -59,23 +65,40 @@ const Home = () => {
       }
     }
     useEffect(()=>{
+      const token=localStorage.getItem('token')
+      if(!token){
+        navigate('/login')
+      }
         const usersFetching=async()=>{
+            setloading(true)
             const response=await api.get('/users/')
+            setloading(false)
             setUser(response?.data?.data)
         }
         const currentUserFetching=async()=>{
+          setloading(true)
           const response=await api.get('/users/',{params:{userId:localStorage.getItem('userId')}})
+          setloading(false)
           setCurentUSer(response?.data?.data)
           setConutriesCode(response.data.data.interested_countries)
+        }
+        const locationsFetching=async()=>{
+          setloading(true)
+          const response=await api.get('/countries/')
+          setLocations(response.data.data);
         }
         
         currentUserFetching()
         usersFetching()
         fetchPost()
         countriesFetching()
+        locationsFetching()
     },[page,filter,search])
      
-      
+    const handleSelectChange = (event) => {
+      setSelecteLocation(event.target.value);
+    };
+
     const handleImageUpload=(event)=>{
         const file =event.target.files[0];
         setFile(file)
@@ -87,19 +110,21 @@ const Home = () => {
         try {
           let uri;
           if(file){
+            setloading(true)
             const value=await handleFileUpload(file)
              uri=file&&value
           }
             const user_id=localStorage.getItem('userId')
             const description = descriptionRef.current.value;
-            const newData={description,user_id,...(uri&&{image:uri})};
+            const newData={selectLocation,description,user_id,...(uri&&{image:uri})};
             const response=await api.post('/post/',newData)
-            console.log(response);
+            setloading(false)
             if(response.status!=200){
               setErrMsg(response)
             }else{
               if(descriptionRef.current){
                 descriptionRef.current.value = "";
+                fetchPost()
               }
               setFile(null);
               setErrMsg("");
@@ -117,6 +142,7 @@ const Home = () => {
 
   return (
     <div className={`home w-full px- lg:px-10 pb-20 2xl:px-40 bg-secondary bg-opacity-40 lg:rounded-lg h-screen overflow-hidden`}>
+      {/* {loading&&<Loading/>} */}
       {modalIsOpen&&<ProfileModal modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen}/>}
       {modalIsOpenContries&&<ContriesModal modalIsOpenContries={modalIsOpenContries} setModalIsOpenContries={setModalIsOpenContries} countriesFetching={countriesFetching}/>}
     <NavBar setFilter={setFilter} setSearch={setSearch} filter={filter} setModalIsOpen={setModalIsOpen} setModalIsOpenContries={setModalIsOpenContries} isOpen={isOpen} setIsOpen={setIsOpen}/>
@@ -172,6 +198,17 @@ const Home = () => {
               ref={descriptionRef}
             />
           </div>
+          {descriptionRef!=null && (
+  <select name="location" id="location" className='w-full outline-none rounded-full bg-white' onChange={handleSelectChange}>
+    {locations?.map((location) => (
+      <option key={location._id} value={location.name}>
+        {location.name}
+      </option>
+    ))}
+  </select>
+)}
+
+
           {errMsg?.message && (
             <span
               role="alert"
@@ -293,6 +330,10 @@ const Home = () => {
           </div>
       </div>
     </div>
+    {loading && (
+        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-700 bg-opacity-50">
+          <Loading />
+        </div>)}
   </div>
   )
 }

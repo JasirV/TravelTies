@@ -12,7 +12,6 @@ const ContriesModal = ({modalIsOpenContries,setModalIsOpenContries,countriesFetc
     const fetchflags=async()=>{
         try {
             const response=await api.get('/countries/')
-            console.log(response,'contries');
             setCountries(response.data.data)
         } catch (error) {
             console.error(error)

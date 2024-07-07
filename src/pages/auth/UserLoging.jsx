@@ -1,12 +1,14 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import TextInput from '../../components/TextInput'
 import BgImage from '../../assets/singupbg.jpg'
 import { useNavigate } from 'react-router-dom'
 import api from '../../utils/apiIntercepeors'
+import Loading from '../../components/Loading'
 const UserLoging = () => {
   const navigate=useNavigate()
   const [data,setData]=useState()
   const [errorMes,setErrorMes]=useState()
+  const [loading,setLoading]=useState(false)
   const handleSubmit= async(event)=>{
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -19,7 +21,9 @@ const UserLoging = () => {
     }else{
       setData({email: formData.get('email'),
       password: formData.get('password')})
+      setLoading(true)
       const response=await api.post('/auth/login',data)
+      setLoading(false)
       if(response.status===200){
         console.log(response);
         localStorage.setItem('token',response.data.token)
@@ -63,6 +67,10 @@ const UserLoging = () => {
           </div>
         </div>
       </div>
+      {loading && (
+        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-700 bg-opacity-50">
+          <Loading />
+        </div>)}
     </div>
     
   )

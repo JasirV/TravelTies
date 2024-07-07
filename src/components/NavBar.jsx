@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { GiTreasureMap } from "react-icons/gi";
 import {IoMdNotificationsOutline} from 'react-icons/io'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaArrowDownLong } from "react-icons/fa6";
 import NavbarSm from './NavbarSm';
 import { CiFilter } from "react-icons/ci";
@@ -10,11 +10,16 @@ import FilterModal from './FilterModal';
 const NavBar = ({setModalIsOpen,setModalIsOpenContries,setSearch,isOpen,setIsOpen,setFilter}) => {
 const [isOpend, setIsOpend] = useState(false);
 const [login,setLogin]=useState(false)
+const navigate=useNavigate()
 useState(()=>{
     if(localStorage.getItem('token')){
         setLogin(true)
     }
 },[])
+const handleLogout=()=>{
+    localStorage.clear()
+    navigate('/login')
+}
   return (
     <>
     <div className='topbar w-full flex items-center justify-between py-3 md:py-6 px-4 rounded-3xl bg-white'>
@@ -44,7 +49,7 @@ useState(()=>{
         </div>
         {login&&
         <div>
-           <button className='text-sm text-ascent-1 px-4 md:px-6 py-1 md:py-2 border border-[#666] rounded-full bg-white'>logout</button>
+           <button onClick={()=>{handleLogout}} className='text-sm text-ascent-1 px-4 md:px-6 py-1 md:py-2 border border-[#666] rounded-full bg-white'>logout</button>
         </div>}
         </div>
     </div>
