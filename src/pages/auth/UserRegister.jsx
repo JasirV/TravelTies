@@ -13,34 +13,39 @@ const UserRegister = () => {
     const [lastName, setLastName] = useState('');
     const [password, setPassword] = useState('');
     const [errorMes, setErrorMes] = useState('');
-    const handleSubmit=async(event)=>{
+    const handleSubmit = async (event) => {
       event.preventDefault();
-      const formData = new FormData(event.currentTarget);
-      const email = formData.get('email');
-      const firstName = formData.get('firstName');
-      const lastName = formData.get('lastName');
-      const password = formData.get('password');
-      if(!email||!firstName||!lastName){
-        setErrorMes('Fill The Form')
-        return 
-      }else if(password.length<8){
-        setErrorMes("Password Mustbe 8 length")
-        return
-      }
-      else{
-        setData({email,password,first_name:firstName,last_name:lastName})
-        setLoading(true)
-          const response= await api.post('/auth/register',data)
-          setLoading(false)
-          if(response.status===201){
-            localStorage.setItem('token',response.data.token)
-            localStorage.setItem('userId',response.data.user._id)
-            navigate('/')
-          }else{
-            errorMes(response.data.message)
+      if (!email || !firstName || !lastName) {
+        setErrorMes('Fill The Form');
+        return;
+      } else if (password.length < 8) {
+        setErrorMes('Password must be at least 8 characters');
+        return;
+      } else {
+        const data = {
+          email,
+          password,
+          first_name: firstName,
+          last_name: lastName,
+        };
+        setLoading(true);
+        try {
+          const response = await api.post('/auth/register', data);
+          setLoading(false);
+          if (response.status === 201) {
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('userId', response.data.user._id);
+            navigate('/');
+          } else {
+            setErrorMes(response.data.message);
           }
+        } catch (error) {
+          setLoading(false);
+          setErrorMes('An error occurred during registration');
+          console.error(error);
+        }
       }
-    }
+    };
   return (
     <div className='bg-secondary bg-opacity-30 w-fulll h-screen flex justify-center items-center'>
       <div className='w-full md:w-2/3 h-fit lg:h-full 2xl:h-5/6 py-8 lg:py-0 flex  bg-white rounded-xl overflow-hidden shadow-xl'>
