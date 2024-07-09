@@ -80,7 +80,7 @@ const PostCard = ({post,user,deletePost,likePost,fetchPost}) => {
             {post?.comment?.length}Comments
           </p>
           {
-            user?._id===post?.userId?._id && 
+            userId===post?.user_id?._id && 
             <div className='flex gap-1 items-center text-base text-ascent-1 cursor-pointer' onClick={()=>handleDelete(post?._id)}>
               <MdDeleteOutline size={20} />
               <span>Delete</span>
