@@ -8,7 +8,7 @@ const CommentForm=({user,postId,replayAt,getComments})=>{
     const [loading,setLoading]=useState(false)
     const [errMsg,setErrMsg]=useState("")
     const commentRef=useRef(null)
-    user=user.filter((i)=>i._id!==localStorage.getItem('userId'))
+    let userId=localStorage.getItem('userId')
     const onSubmit= async (data)=>{
         data.preventDefault();
       setLoading(true)
@@ -18,7 +18,7 @@ const CommentForm=({user,postId,replayAt,getComments})=>{
         const comment = commentRef.current.value;
         const newData={comment:comment,
         from:`${user[0]?.first_name} ${user[0]?.last_name}`,
-        userId:user[0]?._id,
+        userId:userId,
         replayAt:replayAt,};
         const res=await api.post(`/${URL}`,newData)
         getComments()
@@ -39,7 +39,7 @@ const CommentForm=({user,postId,replayAt,getComments})=>{
 
     return  (<form className='w-full border-b border-[#66666645] '  onSubmit={onSubmit}>
     <div className='w-full flex items-center gap-2 py-4'>
-      <img src={user?.profile_pic?? NoProfile} alt='UserImage' className='w-10 h-10 rounded-full object-cover' />
+      <img src={user[0]?.profile_pic?? NoProfile} alt='UserImage' className='w-10 h-10 rounded-full object-cover' />
       <input ref={commentRef} name='comment' className="w-full rounded-full px-3 bg-secondary bg-opacity-25 py-3" placeholder={replayAt?`Replay @${replayAt}`:"Comment this Post"}/>
     </div>
     {errMsg?.message &&(

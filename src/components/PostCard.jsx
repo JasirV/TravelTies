@@ -38,7 +38,6 @@ const PostCard = ({post,user,deletePost,likePost,fetchPost}) => {
     }
   }
   const userId=localStorage.getItem('userId')
-  console.log(post);
   return (
     <div className='mb-2 bg-white shadow-sm p-4 rounded-xl'>
         <div className='flex gap-3 items-center mb-2'>
@@ -101,7 +100,7 @@ const PostCard = ({post,user,deletePost,likePost,fetchPost}) => {
                 <div className='w-full py-2' key={c._id}>
                   <div className='flex gap-2 items-center mb-1'>
                     <div>
-                      <img src={c?.userId?.profile_pic??NoProfile} alt={c?.userId?.first_name} className='w-10 h-10 rounded-full object-cover' />
+                      <img src={c?.user_id?.profile_pic??NoProfile} alt={c?.user_id?.first_name} className='w-10 h-10 rounded-full object-cover' />
                     </div>
                   <div>
                     <div>

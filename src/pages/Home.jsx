@@ -138,7 +138,6 @@ const Home = () => {
     const handleChange = (e, value) => {
       setPage(value);
     };
-    console.log(cureentUser);
 
   return (
     <div className={`home w-full px- lg:px-10 pb-20 2xl:px-40 bg-secondary bg-opacity-40 lg:rounded-lg h-screen overflow-hidden`}>

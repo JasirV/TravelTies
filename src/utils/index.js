@@ -13,6 +13,7 @@ export const LikePost=async (uri)=>{
   const userId=localStorage.getItem('userId')
   try {
     const response=await api.post(`${uri}`,{userId})
+    console.log(response);
     return response
   } catch (error) {
     console.error(error);
